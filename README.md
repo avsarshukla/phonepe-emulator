@@ -89,8 +89,6 @@ phonepe-emulator/
 ---
 
 ## Run locally
-
-```bash
 # Clone
 git clone [https://github.com/avsarshukla/phonepe-emulator.git](https://github.com/avsarshukla/phonepe-emulator.git)
 cd phonepe-emulator
