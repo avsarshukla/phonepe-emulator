@@ -1,0 +1,14 @@
+﻿{
+  "name": "PhonePe Emulator",
+  "short_name": "PhonePe",
+  "theme_color": "#5f259f",
+  "background_color": "#5f259f",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/phonepe-emulator/",
+  "scope": "/phonepe-emulator/",
+  "icons": [
+    { "src": "/phonepe-emulator/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/phonepe-emulator/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
