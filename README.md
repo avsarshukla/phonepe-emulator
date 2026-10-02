@@ -29,7 +29,7 @@ A pixel-faithful **PhonePe UPI flow emulator** that runs as an installable Progr
 - 🧾 **Full transfer details** view (UTR, masked account, message)
 - 📜 **Auto-expiring transaction history** (5-minute TTL via sessionStorage)
 
-> ⚠️ **This is a UI/UX emulator.** No real UPI transactions happen. No money moves. No bank is contacted. Do not use it to deceive anyone.
+> ⚠ **This is a UI/UX emulator.** No real UPI transactions happen. No money moves. No bank is contacted. Do not use it to deceive anyone.
 
 ---
 
@@ -66,117 +66,155 @@ Same URL, any modern browser. Best viewed in **Chrome DevTools → Device Toolba
 
 ## Project structure
 
-phonepe-emulator/
-├── .github/workflows/deploy.yml     # auto-deploy to Pages
-├── public/
-│   ├── manifest.webmanifest
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   └── assets/audio/
-│       └── phonepe_success.mp3      # the chime
-├── src/
-│   ├── App.svelte                   # entire UI + state machine
-│   ├── main.js
-│   ├── app.css
-│   └── lib/
-│       ├── txnId.js                 # PhonePe-format ID generator
-│       └── store.js                 # 5-minute TTL transaction store
-├── index.html
-├── package.json
-├── svelte.config.js
-└── vite.config.js
+	phonepe-emulator/
+	├── .github/workflows/deploy.yml     # auto-deploy to Pages
+	├── public/
+	│   ├── manifest.webmanifest
+	│   ├── icon-192.png
+	│   ├── icon-512.png
+	│   └── assets/audio/
+	│       └── phonepe_success.mp3      # the chime
+	├── src/
+	│   ├── App.svelte                   # entire UI + state machine
+	│   ├── main.js
+	│   ├── app.css
+	│   └── lib/
+	│       ├── txnId.js                 # PhonePe-format ID generator
+	│       └── store.js                 # 5-minute TTL transaction store
+	├── index.html
+	├── package.json
+	├── svelte.config.js
+	└── vite.config.js
 
 ---
 
 ## Run locally
-# Clone
-git clone [https://github.com/avsarshukla/phonepe-emulator.git](https://github.com/avsarshukla/phonepe-emulator.git)
-cd phonepe-emulator
 
-# Install
-npm install
+	# Clone
+	git clone https://github.com/avsarshukla/phonepe-emulator.git
+	cd phonepe-emulator
 
-# Dev server
-npm run dev
-# → http://localhost:5173/phonepe-emulator/
+	# Install
+	npm install
 
-# Production build
-npm run build
+	# Dev server
+	npm run dev
+	# → http://localhost:5173/phonepe-emulator/
 
-# Preview the production build
-npm run preview
+	# Production build
+	npm run build
 
-# Requires Node.js 20+.
+	# Preview the production build
+	npm run preview
+
+Requires **Node.js 20+**.
+
+---
 
 ## How the flow works
 
-┌──────────────────────┐
-│    Home dashboard    │
-└──────────┬───────────┘
-           │ Tap "To Mobile"
-           ▼
-┌──────────────────────┐
-│   Recipient form     │  UPI ID → auto-derives name
-└──────────┬───────────┘
-           │ Proceed
-           ▼
-┌──────────────────────┐
-│   Amount + keypad    │  Custom keypad, no OS keyboard
-└──────────┬───────────┘
-           │ Proceed To Pay
-           ▼
-┌──────────────────────┐
-│   MPIN overlay       │  6-digit dots, Pay button
-└──────────┬───────────┘
-           │ Enter 6 digits + Pay
-           ▼
-┌──────────────────────┐
-│   Processing (2s)    │  Spinner + audio preload
-└──────────┬───────────┘
-           │ Complete
-           ▼
-┌──────────────────────┐
-│   Green success      │  Checkmark + chime + txn ID
-└──────────┬───────────┘
-           │ View details / Done
-           ▼
-┌──────────────────────┐
-│   Detail / History   │  Auto-purges after 5 min
-└──────────────────────┘
+	┌──────────────────────┐
+	│    Home dashboard    │
+	└──────────┬───────────┘
+	           │ Tap "To Mobile"
+	           ▼
+	┌──────────────────────┐
+	│   Recipient form     │  UPI ID → auto-derives name
+	└──────────┬───────────┘
+	           │ Proceed
+	           ▼
+	┌──────────────────────┐
+	│   Amount + keypad    │  Custom keypad, no OS keyboard
+	└──────────┬───────────┘
+	           │ Proceed To Pay
+	           ▼
+	┌──────────────────────┐
+	│   MPIN overlay       │  6-digit dots, Pay button
+	└──────────┬───────────┘
+	           │ Enter 6 digits + Pay
+	           ▼
+	┌──────────────────────┐
+	│   Processing (2s)    │  Spinner + audio preload
+	└──────────┬───────────┘
+	           │ Complete
+	           ▼
+	┌──────────────────────┐
+	│   Green success      │  Checkmark + chime + txn ID
+	└──────────┬───────────┘
+	           │ View details / Done
+	           ▼
+	┌──────────────────────┐
+	│   Detail / History   │  Auto-purges after 5 min
+	└──────────────────────┘
+
+---
 
 ## Transaction ID format
-# Mirrors PhonePe's real format — T + UTC timestamp slice + 6 random digits:
 
-# JavaScript
-// Example output: T261002153012984710
-function generatePhonePeTxnId() {
-  const prefix = 'T';
-  const dateStr = new Date().toISOString().replace(/[-T:.Z]/g, '').slice(2, 14);
-  const randomDigits = Math.floor(100000 + Math.random() * 900000);
-  return `${prefix}${dateStr}${randomDigits}`;
-}
+Mirrors PhonePe's real format — `T` + UTC timestamp slice + 6 random digits:
 
-## Cache behavior
+	// Example output: T261002153012984710
+	function generatePhonePeTxnId() {
+	  const prefix = 'T';
+	  const dateStr = new Date().toISOString().replace(/[-T:.Z]/g, '').slice(2, 14);
+	  const randomDigits = Math.floor(100000 + Math.random() * 900000);
+	  return `${prefix}${dateStr}${randomDigits}`;
+	}
 
-Transactions are stored in sessionStorage with a 5-minute TTL. Every read filters out expired entries. Closing the tab wipes everything. There is no persistence to disk, no localStorage, no cookies, no server, no analytics.
+---
+
+## Cache behaviour
+
+Transactions are stored in `sessionStorage` with a **5-minute TTL**. Every read filters out expired entries. Closing the tab wipes everything. There is **no persistence to disk, no localStorage, no cookies, no server, no analytics**.
 
 This is intentional — nothing you type survives the session.
 
+---
+
+## Customizing
+
+### Change the success sound
+Replace `public/assets/audio/phonepe_success.mp3` with your own MP3 (same filename).
+
+### Change the app icon
+Replace `public/icon-192.png` and `public/icon-512.png`. Sizes must match exactly.
+
+### Change the TTL
+Edit `TTL_MS` in `src/lib/store.js`:
+
+	const TTL_MS = 5 * 60 * 1000;   // 5 minutes
+
+### Change the theme color
+Edit `src/app.css`:
+
+	@theme {
+	  --color-pp-purple: #5f259f;
+	  --color-pp-green:  #00875a;
+	}
+
+---
+
 ## Deploy your own copy
-# 1. Fork this repo.
 
-# 2. Go to Settings → Pages → Source and choose GitHub Actions.
+1. **Fork** this repo.
+2. Go to **Settings → Pages → Source** and choose **GitHub Actions**.
+3. Wait 90 seconds for the workflow to finish.
+4. Your copy is live at `https://avsarshukla.github.io/phonepe-emulator/`.
 
-# 3. Wait 90 seconds for the workflow to finish.
+Any push to `main` triggers a rebuild and redeploy automatically.
 
-# 4. Your copy is live at https://avsarshukla.github.io/phonepe-emulator/.
-
-Any push to main triggers a rebuild and redeploy automatically.
+---
 
 ## Disclaimer
-# Not affiliated with, endorsed by, or connected to PhonePe Pvt. Ltd. in any way.
+
+**Not affiliated with, endorsed by, or connected to PhonePe Pvt. Ltd. in any way.**
 
 This project is a UI exercise. All trademarks belong to their respective owners. It is provided for educational and prototyping purposes only. Do not use it to impersonate payments, defraud anyone, or misrepresent a completed transaction. Doing so is illegal and unethical.
 
-# License
-MIT — do what you want, no warranty.
+---
+
+## License
+
+[MIT](LICENSE) — do what you want, no warranty.
+
+<p align="center"><sub>Built with ☕ and Tailwind utilities.</sub></p>
