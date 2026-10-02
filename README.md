@@ -65,3 +65,120 @@ Same URL, any modern browser. Best viewed in **Chrome DevTools → Device Toolba
 ---
 
 ## Project structure
+
+phonepe-emulator/
+├── .github/workflows/deploy.yml     # auto-deploy to Pages
+├── public/
+│   ├── manifest.webmanifest
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   └── assets/audio/
+│       └── phonepe_success.mp3      # the chime
+├── src/
+│   ├── App.svelte                   # entire UI + state machine
+│   ├── main.js
+│   ├── app.css
+│   └── lib/
+│       ├── txnId.js                 # PhonePe-format ID generator
+│       └── store.js                 # 5-minute TTL transaction store
+├── index.html
+├── package.json
+├── svelte.config.js
+└── vite.config.js
+
+---
+
+## Run locally
+
+```bash
+# Clone
+git clone [https://github.com/avsarshukla/phonepe-emulator.git](https://github.com/avsarshukla/phonepe-emulator.git)
+cd phonepe-emulator
+
+# Install
+npm install
+
+# Dev server
+npm run dev
+# → http://localhost:5173/phonepe-emulator/
+
+# Production build
+npm run build
+
+# Preview the production build
+npm run preview
+
+# Requires Node.js 20+.
+
+## How the flow works
+
+┌──────────────────────┐
+│    Home dashboard    │
+└──────────┬───────────┘
+           │ Tap "To Mobile"
+           ▼
+┌──────────────────────┐
+│   Recipient form     │  UPI ID → auto-derives name
+└──────────┬───────────┘
+           │ Proceed
+           ▼
+┌──────────────────────┐
+│   Amount + keypad    │  Custom keypad, no OS keyboard
+└──────────┬───────────┘
+           │ Proceed To Pay
+           ▼
+┌──────────────────────┐
+│   MPIN overlay       │  6-digit dots, Pay button
+└──────────┬───────────┘
+           │ Enter 6 digits + Pay
+           ▼
+┌──────────────────────┐
+│   Processing (2s)    │  Spinner + audio preload
+└──────────┬───────────┘
+           │ Complete
+           ▼
+┌──────────────────────┐
+│   Green success      │  Checkmark + chime + txn ID
+└──────────┬───────────┘
+           │ View details / Done
+           ▼
+┌──────────────────────┐
+│   Detail / History   │  Auto-purges after 5 min
+└──────────────────────┘
+
+## Transaction ID format
+# Mirrors PhonePe's real format — T + UTC timestamp slice + 6 random digits:
+
+# JavaScript
+// Example output: T261002153012984710
+function generatePhonePeTxnId() {
+  const prefix = 'T';
+  const dateStr = new Date().toISOString().replace(/[-T:.Z]/g, '').slice(2, 14);
+  const randomDigits = Math.floor(100000 + Math.random() * 900000);
+  return `${prefix}${dateStr}${randomDigits}`;
+}
+
+## Cache behavior
+
+Transactions are stored in sessionStorage with a 5-minute TTL. Every read filters out expired entries. Closing the tab wipes everything. There is no persistence to disk, no localStorage, no cookies, no server, no analytics.
+
+This is intentional — nothing you type survives the session.
+
+## Deploy your own copy
+# 1. Fork this repo.
+
+# 2. Go to Settings → Pages → Source and choose GitHub Actions.
+
+# 3. Wait 90 seconds for the workflow to finish.
+
+# 4. Your copy is live at https://avsarshukla.github.io/phonepe-emulator/.
+
+Any push to main triggers a rebuild and redeploy automatically.
+
+## Disclaimer
+# Not affiliated with, endorsed by, or connected to PhonePe Pvt. Ltd. in any way.
+
+This project is a UI exercise. All trademarks belong to their respective owners. It is provided for educational and prototyping purposes only. Do not use it to impersonate payments, defraud anyone, or misrepresent a completed transaction. Doing so is illegal and unethical.
+
+# License
+MIT — do what you want, no warranty.
