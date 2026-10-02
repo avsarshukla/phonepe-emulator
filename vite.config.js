@@ -1,4 +1,4 @@
-﻿import { defineConfig } from 'vite';
+import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -13,8 +13,11 @@ export default defineConfig({
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,mp3}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,mp3,webmanifest}'],
+        globIgnores: ['**/node_modules/**/*'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        navigateFallback: 'index.html',
+        cleanupOutdatedCaches: true,
       },
     }),
   ],
